@@ -20,6 +20,7 @@ const Notification = mongoose.model('Notification', notificationSchema);
 const app = express();
 const server = require('http').createServer(app);
 const wss = new WebSocket.Server({ server });
+
 // WebSocket connection
 wss.on('connection', (ws) => {
   console.log('Client connected');
@@ -68,7 +69,7 @@ function sendNotifications(ws) {
     });
 }
 
-const PORT = process.env.PORT || 3000; // Use environment variable or default to 3000
-server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Start the server
+server.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
