@@ -3,7 +3,7 @@
   const bodyParser = require('body-parser');
   const cors = require('cors');
   const app = express();
-  const PORT = 5000;
+  const PORT = 10000;
   const multer = require('multer');
   const path = require('path'); 
 
