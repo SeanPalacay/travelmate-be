@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently \"python app.py\" \"node server.js\" \"node websocket.js\""
+    "start": "concurrently \"node server.js\" \"node websocket.js\""
   },
   "keywords": [],
   "author": "",
