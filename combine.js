@@ -910,7 +910,7 @@ app.post('/submit-review', upload.single('proof'), async (req, res) => {
       review_title,
       comment,
       date: new Date(date),
-      proof, // Ensure this is included
+      proof,
       destination_id: destination._id,
       user_id: user._id,
     });
