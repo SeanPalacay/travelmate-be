@@ -910,7 +910,7 @@ app.post('/submit-review', upload.single('proof'), async (req, res) => {
       review_title,
       comment,
       date: new Date(date),
-      proof,
+      proof, // Ensure this is included
       destination_id: destination._id,
       user_id: user._id,
     });
@@ -967,6 +967,7 @@ app.get('/reviews/:destinationId', async (req, res) => {
         review_title: review.review_title,
         comment: review.comment,
         date: review.date,
+        proof: review.proof, // Include the proof field
       })),
       averageRating: Number(averageRating.toFixed(1)),
       ratingBreakdown,
