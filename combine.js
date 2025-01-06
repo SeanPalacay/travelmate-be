@@ -760,7 +760,7 @@ app.get('/carousel-destinations', async (req, res) => {
 
     console.log('Fetched Destinations:', destinations);
 
-    const laravelBaseUrl = 'http://146.190.87.44/images/coverphotos/';
+    const laravelBaseUrl = 'http://travelmate-be.onrender.com/images/coverphotos/';
     destinations.forEach((destination) => {
       if (destination.coverphoto) {
         destination.coverphoto = `${laravelBaseUrl}${destination.coverphoto}`;
@@ -789,7 +789,7 @@ app.get('/tourist-spots', async (req, res) => {
       return res.status(404).json({ message: 'No tourist spots found' });
     }
 
-    const laravelBaseUrl = 'http://146.190.87.44/images/coverphotos/';
+    const laravelBaseUrl = 'http://travelmate-be.onrender.com/images/coverphotos/';
     destinations.forEach((destination) => {
       if (destination.coverphoto) {
         destination.coverphoto = `${laravelBaseUrl}${destination.coverphoto}`;
@@ -1005,7 +1005,7 @@ app.get('/all-destinations', async (req, res) => {
     const destinationsWithImages = destinations.map((destination) => {
       const destObj = destination.toObject();
       destObj.coverphoto = destination.coverphoto
-        ? `http://146.190.87.44/images/coverphotos/${destination.coverphoto}`
+        ? `http://travelmate-be.onrender.com/images/coverphotos/${destination.coverphoto}`
         : 'https://via.placeholder.com/150';
       return destObj;
     });
