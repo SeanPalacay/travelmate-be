@@ -6,9 +6,6 @@ const multer = require('multer');
 const path = require('path');
 const http = require('http');                // <-- We'll create a server from the 'http' module
 const WebSocket = require('ws');            // <-- WebSocket
-const axios = require('axios');
-const FormData = require('form-data');
-const fs = require('fs');
 
 // ========== Express App and Middlewares ==========
 const app = express();
@@ -889,8 +886,12 @@ app.get('/reviews', async (req, res) => {
 
 // 20) Submit review
 app.post('/submit-review', upload.single('proof'), async (req, res) => {
+  console.log('Submit review triggered on backend');
+  console.log('Request body:', req.body);
+  console.log('Uploaded file:', req.file);
+
   const { rating, review_title, comment, date, destination_id, user_id } = req.body;
-  const proof = req.file; // Multer file object
+  const proof = req.file ? `https://travelmate-be.onrender.com/uploads/${req.file.filename}` : null;
 
   try {
     // Check if destination exists
@@ -905,31 +906,13 @@ app.post('/submit-review', upload.single('proof'), async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Send the image to Laravel backend
-    let proofUrl = null;
-    if (proof) {
-      const formData = new FormData();
-      formData.append('proof', fs.createReadStream(proof.path), {
-        filename: proof.originalname,
-        contentType: proof.mimetype,
-      });
-
-      const laravelResponse = await axios.post('https://travelmate-ykmn9.ondigitalocean.app/upload-proof', formData, {
-        headers: {
-          ...formData.getHeaders(),
-        },
-      });
-
-      proofUrl = laravelResponse.data.url; // URL of the uploaded image
-    }
-
-    // Save the review with the proof URL
+    // Create a new review with the proof URL
     const newReview = new Review({
       rating,
       review_title,
       comment,
       date: new Date(date),
-      proof: proofUrl, // Store the URL returned by Laravel
+      proof, // Store the full URL to the uploaded image
       destination_id: destination._id,
       user_id: user._id,
     });
@@ -1253,6 +1236,9 @@ function sendNotifications(ws) {
       ws.send(JSON.stringify({ error: 'Failed to retrieve notifications.' }));
     });
 }
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /****************************************************
  *  START THE SERVER (HTTP + WEBSOCKET)
