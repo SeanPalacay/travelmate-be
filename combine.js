@@ -760,7 +760,7 @@ app.get('/carousel-destinations', async (req, res) => {
 
     console.log('Fetched Destinations:', destinations);
 
-    const laravelBaseUrl = 'http://travelmate-be.onrender.com/images/coverphotos/';
+    const laravelBaseUrl = 'http://https://travelmate-be.onrender.com/images/coverphotos/';
     destinations.forEach((destination) => {
       if (destination.coverphoto) {
         destination.coverphoto = `${laravelBaseUrl}${destination.coverphoto}`;
@@ -789,7 +789,7 @@ app.get('/tourist-spots', async (req, res) => {
       return res.status(404).json({ message: 'No tourist spots found' });
     }
 
-    const laravelBaseUrl = 'http://travelmate-be.onrender.com/images/coverphotos/';
+    const laravelBaseUrl = 'http://https://travelmate-be.onrender.com/images/coverphotos/';
     destinations.forEach((destination) => {
       if (destination.coverphoto) {
         destination.coverphoto = `${laravelBaseUrl}${destination.coverphoto}`;
@@ -890,8 +890,8 @@ app.post('/submit-review', upload.single('proof'), async (req, res) => {
   console.log('Request body:', req.body);
   console.log('Uploaded file:', req.file);
 
-  const { rating, review_title, comment, date, destination_id, user_id } = req.body;
-  const proof = req.file ? `https://travelmate-be.onrender.com/uploads/${req.file.filename}` : null;
+  const { rating, review_title, comment, date, destination_id, user_id, status } = req.body;
+  const proof = req.file ? req.file.path : null;
 
   try {
     // Check if destination exists
@@ -899,20 +899,18 @@ app.post('/submit-review', upload.single('proof'), async (req, res) => {
     if (!destination) {
       return res.status(404).json({ message: 'Destination not found' });
     }
-
     // Check if user exists
     const user = await User.findById(user_id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Create a new review with the proof URL
     const newReview = new Review({
       rating,
       review_title,
       comment,
       date: new Date(date),
-      proof, // Store the full URL to the uploaded image
+      proof,
       destination_id: destination._id,
       user_id: user._id,
     });
@@ -1005,7 +1003,7 @@ app.get('/all-destinations', async (req, res) => {
     const destinationsWithImages = destinations.map((destination) => {
       const destObj = destination.toObject();
       destObj.coverphoto = destination.coverphoto
-        ? `http://travelmate-be.onrender.com/images/coverphotos/${destination.coverphoto}`
+        ? `http://https://travelmate-be.onrender.com/images/coverphotos/${destination.coverphoto}`
         : 'https://via.placeholder.com/150';
       return destObj;
     });
@@ -1237,8 +1235,8 @@ function sendNotifications(ws) {
     });
 }
 
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 /****************************************************
  *  START THE SERVER (HTTP + WEBSOCKET)
