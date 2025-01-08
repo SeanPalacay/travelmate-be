@@ -498,7 +498,7 @@ app.post('/destinations-by-ids', async (req, res) => {
       console.log('Received destination IDs:', destinationIds);
   
       // Convert string IDs to MongoDB ObjectIds
-      const objectIds = destinationIds.map((id) => mongoose.Types.ObjectId(id));
+      const objectIds = destinationIds.map((id) => new mongoose.Types.ObjectId(id)); // Use 'new' keyword
   
       console.log('Converted ObjectIds:', objectIds);
   
@@ -527,7 +527,6 @@ app.post('/destinations-by-ids', async (req, res) => {
       res.status(500).json({ message: 'Error fetching destinations', error: error.message });
     }
   });
-
 // 5) Add/remove destinations to a trip
 app.post('/generated-trips/:tripId/add-destination', async (req, res) => {
   const { tripId } = req.params;
