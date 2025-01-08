@@ -754,11 +754,14 @@ app.use((req, res, next) => {
 // 15) Carousel destinations
 app.get('/carousel-destinations', async (req, res) => {
   try {
-    const destinations = await Destination.find({ status: 'approved' })
-      .select('_id destination_name destination_address operating_hours category about amenities coverphoto')
-      .limit(5);
+    const destinations = await Destination.find({ 
+      status: 'approved',
+      category: 'Adventure'  // Add this filter
+    })
+    .select('_id destination_name destination_address operating_hours category about amenities coverphoto')
+    .limit(5);
 
-    console.log('Fetched Destinations:', destinations);
+    console.log('Fetched Adventure Destinations:', destinations);
 
     const laravelBaseUrl = 'http://https://travelmate-be.onrender.com/images/coverphotos/';
     destinations.forEach((destination) => {
@@ -770,9 +773,10 @@ app.get('/carousel-destinations', async (req, res) => {
     res.status(200).json(destinations);
   } catch (error) {
     console.error('Error fetching carousel destinations:', error);
-    res
-      .status(500)
-      .json({ message: 'Error fetching carousel destinations', error: error.message });
+    res.status(500).json({ 
+      message: 'Error fetching carousel destinations', 
+      error: error.message 
+    });
   }
 });
 
@@ -894,7 +898,7 @@ app.post('/submit-review', upload.single('proof'), async (req, res) => {
   const proof = req.file ? req.file.path : null;
 
   try {
-    // Check if destination exists
+    // Check if destination existsf
     const destination = await Destination.findById(destination_id);
     if (!destination) {
       return res.status(404).json({ message: 'Destination not found' });
