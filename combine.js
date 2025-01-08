@@ -487,26 +487,46 @@ app.delete('/generated-trips', async (req, res) => {
 
 // 4) Add this new endpoint in your server.js
 app.post('/destinations-by-ids', async (req, res) => {
-  try {
-    const { destinationIds } = req.body;
-
-    // Convert string IDs to ObjectIds if necessary
-    const objectIds = destinationIds.map((id) => mongoose.Types.ObjectId(id));
-
-    const destinations = await Destination.find({
-      _id: { $in: objectIds },
-    });
-
-    if (!destinations.length) {
-      return res.status(404).json({ message: 'No destinations found' });
+    try {
+      const { destinationIds } = req.body;
+  
+      // Validate input
+      if (!destinationIds || !Array.isArray(destinationIds)) {
+        return res.status(400).json({ message: 'Invalid or missing destinationIds' });
+      }
+  
+      console.log('Received destination IDs:', destinationIds);
+  
+      // Convert string IDs to MongoDB ObjectIds
+      const objectIds = destinationIds.map((id) => mongoose.Types.ObjectId(id));
+  
+      console.log('Converted ObjectIds:', objectIds);
+  
+      // Fetch destinations from MongoDB
+      const destinations = await Destination.find(
+        { _id: { $in: objectIds } },
+        { _id: 1, destination_name: 1, category: 1, coverphoto: 1 }
+      );
+  
+      console.log('Fetched destinations:', destinations);
+  
+      // If no destinations are found, return a 404 error
+      if (!destinations.length) {
+        return res.status(404).json({ message: 'No destinations found for the provided IDs' });
+      }
+  
+      // Convert ObjectIds to strings for JSON serialization
+      const formattedDestinations = destinations.map((dest) => ({
+        ...dest.toObject(),
+        _id: dest._id.toString(),
+      }));
+  
+      res.status(200).json(formattedDestinations);
+    } catch (error) {
+      console.error('Error fetching destinations by IDs:', error);
+      res.status(500).json({ message: 'Error fetching destinations', error: error.message });
     }
-
-    res.status(200).json(destinations);
-  } catch (error) {
-    console.error('Error fetching destinations by IDs:', error);
-    res.status(500).json({ message: 'Error fetching destinations', error });
-  }
-});
+  });
 
 // 5) Add/remove destinations to a trip
 app.post('/generated-trips/:tripId/add-destination', async (req, res) => {
