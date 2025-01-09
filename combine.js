@@ -760,9 +760,9 @@ app.get('/carousel-destinations', async (req, res) => {
         { status: 'approved', rating: { $gte: 4 } },   // Rating >= 4
       ],
     })
-      .select('_id destination_name destination_address operating_hours category about amenities coverphoto rating')
+      .select('_id destination_name destination_address operating_hours category about amenities coverphoto rating') // Include rating
       .sort({ rating: -1 }) // Sort by rating in descending order
-      .limit(10); // Increase the limit to 10
+      .limit(10); // Limit to 5 destinations
 
     console.log('Fetched Must See Destinations:', destinations);
 
