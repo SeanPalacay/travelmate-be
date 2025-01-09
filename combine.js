@@ -792,7 +792,7 @@ app.get('/carousel-destinations', async (req, res) => {
     // Sort by rating (highest first) and limit to top 5
     const topDestinations = filteredDestinations
       .sort((a, b) => b.averageRating - a.averageRating)
-      .slice(0, 5);
+      .slice(0, 15);
 
     // Add image URLs
     const laravelBaseUrl = 'http://https://travelmate-be.onrender.com/images/coverphotos/';
