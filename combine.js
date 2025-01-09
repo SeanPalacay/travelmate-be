@@ -754,14 +754,17 @@ app.use((req, res, next) => {
 // 15) Carousel destinations
 app.get('/carousel-destinations', async (req, res) => {
   try {
-    const destinations = await Destination.find({ 
-      status: 'approved',
-      category: 'Adventure'  // Add this filter
+    const destinations = await Destination.find({
+      $or: [
+        { status: 'approved', category: 'Adventure' }, // Adventure category
+        { status: 'approved', rating: { $gte: 4 } },   // Rating >= 4
+      ],
     })
-    .select('_id destination_name destination_address operating_hours category about amenities coverphoto')
-    .limit(5);
+      .select('_id destination_name destination_address operating_hours category about amenities coverphoto rating')
+      .sort({ rating: -1 }) // Sort by rating in descending order
+      .limit(5); // Limit to 5 destinations
 
-    console.log('Fetched Adventure Destinations:', destinations);
+    console.log('Fetched Must See Destinations:', destinations);
 
     const laravelBaseUrl = 'http://https://travelmate-be.onrender.com/images/coverphotos/';
     destinations.forEach((destination) => {
@@ -773,9 +776,9 @@ app.get('/carousel-destinations', async (req, res) => {
     res.status(200).json(destinations);
   } catch (error) {
     console.error('Error fetching carousel destinations:', error);
-    res.status(500).json({ 
-      message: 'Error fetching carousel destinations', 
-      error: error.message 
+    res.status(500).json({
+      message: 'Error fetching carousel destinations',
+      error: error.message,
     });
   }
 });
