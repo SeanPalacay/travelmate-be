@@ -752,33 +752,62 @@ app.use((req, res, next) => {
 });
 
 // 15) Carousel destinations
+// Update the carousel-destinations endpoint
 app.get('/carousel-destinations', async (req, res) => {
   try {
-    const destinations = await Destination.find({
+    // First, get all approved destinations
+    const destinations = await Destination.find({ 
+      status: 'approved',
       $or: [
-        { status: 'approved', category: 'Adventure' }, // Adventure category
-        { status: 'approved', rating: { $gte: 4 } },   // Rating >= 4
-      ],
-    })
-      .select('_id destination_name destination_address operating_hours category about amenities coverphoto rating') // Include rating
-      .sort({ rating: -1 }) // Sort by rating in descending order
-      .limit(10); // Limit to 5 destinations
+        { category: 'Adventure' },  // Keep Adventure category
+        {}  // Also include all destinations to check ratings
+      ]
+    }).select('_id destination_name destination_address operating_hours category about amenities coverphoto');
 
-    console.log('Fetched Must See Destinations:', destinations);
+    // Get ratings for all destinations
+    const destinationsWithRatings = await Promise.all(
+      destinations.map(async (destination) => {
+        // Get reviews for this destination
+        const reviews = await Review.find({ destination_id: destination._id });
+        
+        // Calculate average rating
+        let averageRating = 0;
+        if (reviews.length > 0) {
+          const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+          averageRating = totalRating / reviews.length;
+        }
 
+        return {
+          ...destination.toObject(),
+          averageRating
+        };
+      })
+    );
+
+    // Filter destinations that are either Adventure category OR have rating >= 4
+    const filteredDestinations = destinationsWithRatings.filter(dest => 
+      dest.category === 'Adventure' || dest.averageRating >= 4
+    );
+
+    // Sort by rating (highest first) and limit to top 5
+    const topDestinations = filteredDestinations
+      .sort((a, b) => b.averageRating - a.averageRating)
+      .slice(0, 5);
+
+    // Add image URLs
     const laravelBaseUrl = 'http://https://travelmate-be.onrender.com/images/coverphotos/';
-    destinations.forEach((destination) => {
+    topDestinations.forEach((destination) => {
       if (destination.coverphoto) {
         destination.coverphoto = `${laravelBaseUrl}${destination.coverphoto}`;
       }
     });
 
-    res.status(200).json(destinations);
+    res.status(200).json(topDestinations);
   } catch (error) {
     console.error('Error fetching carousel destinations:', error);
-    res.status(500).json({
-      message: 'Error fetching carousel destinations',
-      error: error.message,
+    res.status(500).json({ 
+      message: 'Error fetching carousel destinations', 
+      error: error.message 
     });
   }
 });
