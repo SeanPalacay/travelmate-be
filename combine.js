@@ -277,6 +277,16 @@ const DestinationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+     // Add these:
+    lat: {
+      type: Number,  // or String if you prefer
+      required: false,  // or true if you always want them
+    },
+    long: {
+      type: Number,
+      required: false,
+    },
   },
   { timestamps: true, versionKey: false }
 );
@@ -762,7 +772,8 @@ app.get('/carousel-destinations', async (req, res) => {
         { category: 'Adventure' },  // Keep Adventure category
         {}  // Also include all destinations to check ratings
       ]
-    }).select('_id destination_name destination_address operating_hours category about amenities coverphoto');
+    }).select('_id lat long destination_name destination_address operating_hours category about amenities coverphoto')
+
 
     // Get ratings for all destinations
     const destinationsWithRatings = await Promise.all(
