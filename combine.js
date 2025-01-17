@@ -315,6 +315,10 @@ const FareSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    additional_fare: { // Add this missing field
+      type: String,
+      required: true,
+    },
     regular_fare: {
       type: String,
       required: true,
