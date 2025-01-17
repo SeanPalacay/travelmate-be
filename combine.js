@@ -448,6 +448,14 @@ app.post('/generated-trips', async (req, res) => {
     await newTrip.save();
     console.log('Trip saved successfully'); // Debug
 
+    // Save a notification for the user
+    const notificationMessage = `Your trip "${tripName}" has been saved successfully!`;
+    const notification = new Notification({
+      user_id: userId,
+      message: notificationMessage,
+    });
+    await notification.save();
+
     res.status(201).json({
       message: 'Trip saved successfully',
       trip: newTrip,
@@ -485,6 +493,15 @@ app.delete('/generated-trips', async (req, res) => {
     }
 
     console.log('Trip deleted successfully'); // Debug
+
+    // Save a notification for the user
+    const notificationMessage = `Your trip "${tripName}" has been deleted successfully!`;
+    const notification = new Notification({
+      user_id: userId,
+      message: notificationMessage,
+    });
+    await notification.save();
+
     res.status(200).json({ message: 'Trip deleted successfully' });
   } catch (error) {
     console.error('Error deleting trip:', error); // Debug
@@ -1232,6 +1249,15 @@ app.put('/update-itinerary/:id', async (req, res) => {
     if (!updatedTrip) {
       return res.status(404).json({ message: 'Itinerary not found' });
     }
+
+    // Save a notification for the user
+    const notificationMessage = `Your trip "${tripName}" has been updated successfully!`;
+    const notification = new Notification({
+      user_id: updatedTrip.userId, // Assuming userId is part of the itinerary
+      message: notificationMessage,
+    });
+    await notification.save();
+
     res.status(200).json(updatedTrip);
   } catch (error) {
     console.error('Error updating itinerary:', error);
