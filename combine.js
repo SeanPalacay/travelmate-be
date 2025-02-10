@@ -97,6 +97,11 @@ const GeneratedTripSchema = new mongoose.Schema({
       },
     },
   ],
+  isCompleted: {
+    type: Boolean,
+    default: false,
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,
@@ -398,6 +403,50 @@ app.get('/notifications/:user_id', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+/**
+ * Update isCompleted status of a specific trip
+ * Body: { userId, tripName, isCompleted }
+ */
+app.put('/generated-trips/completion', async (req, res) => {
+  try {
+    const { userId, tripName, isCompleted } = req.body;
+
+    // Validate inputs
+    if (!userId || !tripName) {
+      return res.status(400).json({ message: 'userId and tripName are required' });
+    }
+
+    // Find and update the trip
+    const updatedTrip = await GeneratedTrip.findOneAndUpdate(
+      { userId, tripName },
+      { isCompleted },
+      { new: true } // return the updated trip
+    );
+
+    if (!updatedTrip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
+
+    // Optionally save a notification here, if you want:
+    // const notificationMessage = `Trip "${tripName}" marked as ${isCompleted ? 'completed' : 'not done'}!`;
+    // const notification = new Notification({ user_id: userId, message: notificationMessage });
+    // await notification.save();
+
+    return res.status(200).json({
+      message: 'Trip status updated successfully',
+      updatedTrip,
+    });
+  } catch (error) {
+    console.error('Error updating trip status:', error);
+    res.status(500).json({
+      message: 'Error updating trip status',
+      error: error.message,
+    });
+  }
+});
+
 
 // 2) Save generated trip
 app.post('/generated-trips', async (req, res) => {
